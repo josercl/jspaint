@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>JsPaint</title>
+		<link type="text/css" rel="stylesheet" href="../bootstrap/bootstrap/css/bootstrap.css">
+		<link type="text/css" rel="stylesheet" href="css/colorpicker.css">
+		<link type="text/css" rel="stylesheet" href="css/estilo.css">
+	</head>
+	<body>
+		<div id="paleta">
+
+			
+			<button type="button" data-mode="SELECT" class="btn btn_tool btn-canvas active">
+				<div class="canvas_btn" id="canvas_btn_select"></div>
+			</button>
+			<button type="button" data-mode="RECT"   class="btn btn_tool btn-canvas">
+				<div class="canvas_btn" id="canvas_btn_rect"></div>
+			</button>
+			<button type="button" data-mode="ELIPSE" class="btn btn_tool btn-canvas">
+				<div class="canvas_btn" id="canvas_btn_elipse"></div>
+			</button>
+			<button type="button" data-mode="PINTAR" class="btn btn_tool btn-canvas">
+				<div class="canvas_btn" id="canvas_btn_pintar"></div>
+			</button>	
+			<button type="button" data-mode="BORRAR" class="btn btn_tool btn-canvas">
+				<div class="canvas_btn" id="canvas_btn_borrar"></div>
+			</button>
+			
+			<!--button type="button" class="btn btn-small" style="padding: 0; height: 26px; width: 28px; border: 1px solid #333">
+				<div id="canvas_btn"></div>
+			</button-->
+			
+			<p class="clearfix">
+				Relleno <button type="button" class="btn color_select" id="fill" data-color="#FFFFFF">&nbsp;</button>
+			</p>
+			<p class="clearfix">
+				Línea <button type="button" class="btn color_select" id="stroke" data-color="#000000">&nbsp;</button> 
+			</p>
+			
+			<img class="img_btn" src="img/select.png">
+		</div>
+		
+		<div id="canvas"></div>
+		
+		<script src="../jquery/dist/jquery.js"></script>
+		<script src="../bootstrap/bootstrap/js/bootstrap.js"></script>
+		<script src="../raphael/raphael.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<script src="js/colorpicker.js"></script>
+		<script src="js/jspaint.js"></script>
+	</body>
+</html>
