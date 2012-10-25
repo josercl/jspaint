@@ -8,6 +8,7 @@ var modo="SELECT";
 var x0,y0,x,y,width0,height0;
 var dragging=false;
 var shifted=false;
+var drawing=false;
 
 var BBoxSet,derSet,izqSet,supSet,infSet;
 var objActivo;
@@ -16,13 +17,13 @@ var poliStr="";
 var mainGridLines={
 		"stroke": mainGridColor,
 		"stroke-width": .5,
-		"stroke-opacity": .5
+		"stroke-opacity": 1
 };
 
 var secondGridLines={
 		"stroke": secondGridColor,
-		"stroke-width": .5,
-		"stroke-opacity": .5,
+		"stroke-width":.5, 
+		"stroke-opacity": 1,
 		"stroke-dasharray": "- "
 };
 
@@ -30,6 +31,13 @@ var scaleBoxes={
 		"fill": "white",
 		"stroke": "black"
 };
+
+var tmpAttr={
+	"fill-opacity": 0,
+	"stroke": "black",
+	"stroke-width": 1,
+	"stroke-dasharray": "--"
+}
 
 function initGrid(){
 	
@@ -185,11 +193,45 @@ function initCommands(){
 			_clickActionsBox(obj);
 		}
 	});
+
+	rect_tmp=paper.rect(-10,-10,0,0).attr(tmpAttr);
+	elipse_tmp=paper.ellipse(-10,-10,1,1).attr(tmpAttr);
+	
+	$("#canvas").mousemove(function(event){
+		coords=_getMousePos(event);
+		if(drawing){
+
+			w=coords.x-x0;
+			h=coords.y-y0;
+
+			if(shifted){
+				h=w;
+			}
+
+			if(modo=="RECT"){
+				rect_tmp.attr({
+					x: x0,
+					y: y0,
+					width: w,
+					height: h
+				});
+			}
+			if(modo=="ELIPSE"){
+				elipse_tmp.attr({
+					cx: x0+w/2,
+					cy: y0+h/2,
+					rx: w/2,
+					ry: h/2
+				});
+			}
+		}
+	});
 	
 	$("#canvas").mousedown(function(event){
 		coords=_getMousePos(event);
 		x0=coords.x;
 		y0=coords.y;
+		if(!dragging){drawing=true;}
 	}).mouseup(function(event){
 		coords=_getMousePos(event);
 		
@@ -231,6 +273,7 @@ function initCommands(){
 					}
 				},function(){
 					dragging=true;
+					drawing=false;
 					x=this.attr("cx");
 					y=this.attr("cy");
 					width0=this.attr("width");
@@ -247,8 +290,12 @@ function initCommands(){
 				});
 				_clickActionsElipse(obj);
 			}
-			
+            drawing=false;
 		}
+		x0=null;y0=null;
+
+		rect_tmp.attr({x:-10,y:-10,width:1,height:1});
+		elipse_tmp.attr({cx:-10,cy:-10,rx:1,ry:1});
 	});
 	
 	$(document).keyup(function(event){
@@ -283,6 +330,7 @@ function _dragActionBox(obj){
 		}
 	},function(){
 		dragging=true;
+        drawing=false;
 		x=this.attr("x");
 		y=this.attr("y");
 		width0=this.attr("width");
@@ -301,6 +349,7 @@ function _dragActionBox(obj){
 
 function _clickActionsBox(obj){
 	obj.click(function(){
+        drawing=false;
 		objActivo=this;
 		_clearSets();
 		if(modo=="BORRAR"){
@@ -333,9 +382,8 @@ function _clickActionsBox(obj){
 			
 			BBoxSet.push(supizq,sup,supder,izq,der,infizq,inf,infder);
 			BBoxSet.attr(scaleBoxes);
-			
+		
 			der.drag(function(dx,dy){
-				dragging=true;
 				derSet.attr({
 					x: x3+dx
 				})
@@ -349,6 +397,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "e-resize");
 				x3=this.attr("x");
 				x2=obj.attr("x");
@@ -359,7 +409,6 @@ function _clickActionsBox(obj){
 			});
 			
 			izq.drag(function(dx,dy){
-				dragging=true;
 				izqSet.attr({
 					x: x3+dx
 				})
@@ -374,6 +423,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "w-resize");
 				x3=this.attr("x");
 				x2=obj.attr("x");
@@ -384,7 +435,6 @@ function _clickActionsBox(obj){
 			});
 			
 			sup.drag(function(dx,dy){
-				dragging=true;
 				supSet.attr({
 					y: y3+dy
 				})
@@ -399,6 +449,8 @@ function _clickActionsBox(obj){
 					y: obj.attr("y")+obj.attr("height")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "n-resize");
 				y3=this.attr("y");
 				y2=obj.attr("y");
@@ -409,7 +461,6 @@ function _clickActionsBox(obj){
 			});
 			
 			inf.drag(function(dx,dy){
-				dragging=true;
 				infSet.attr({
 					y: y3+dy
 				})
@@ -423,6 +474,8 @@ function _clickActionsBox(obj){
 					y: obj.attr("y")+obj.attr("height")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "s-resize");
 				y3=this.attr("y");
 				y2=obj.attr("y");
@@ -433,7 +486,6 @@ function _clickActionsBox(obj){
 			});
 			
 			infder.drag(function(dx,dy){
-				dragging=true;
 				
 				if(shifted){
 					dy=dx;
@@ -463,6 +515,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "se-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -476,7 +530,6 @@ function _clickActionsBox(obj){
 			});
 			
 			supder.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -504,6 +557,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "ne-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -517,7 +572,6 @@ function _clickActionsBox(obj){
 			});
 			
 			infizq.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -545,6 +599,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "sw-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -558,7 +614,6 @@ function _clickActionsBox(obj){
 			});
 			
 			supizq.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -587,6 +642,8 @@ function _clickActionsBox(obj){
 					x: obj.attr("x")+obj.attr("width")/2-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "nw-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -605,6 +662,7 @@ function _clickActionsBox(obj){
 
 function _clickActionsElipse(obj){
 	obj.click(function(){
+        drawing=false;
 		objActivo=this;
 		_clearSets();
 		if(modo=="BORRAR"){
@@ -637,8 +695,7 @@ function _clickActionsElipse(obj){
 			BBoxSet.attr(scaleBoxes);
 			
 			der.drag(function(dx,dy){
-				dragging=true;
-				derSet.attr({
+                derSet.attr({
 					x: x3+dx
 				})
 				obj.attr({
@@ -652,6 +709,8 @@ function _clickActionsElipse(obj){
 					x: obj.attr("cx")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "e-resize");
 				x3=this.attr("x");
 				x2=obj.attr("cx");
@@ -662,7 +721,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			izq.drag(function(dx,dy){
-				dragging=true;
 				izqSet.attr({
 					x: x3+dx
 				})
@@ -677,6 +735,8 @@ function _clickActionsElipse(obj){
 					x: obj.attr("cx")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "w-resize");
 				x3=this.attr("x");
 				x2=obj.attr("cx");
@@ -687,7 +747,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			sup.drag(function(dx,dy){
-				dragging=true;
 				supSet.attr({
 					y: y3+dy
 				})
@@ -702,6 +761,8 @@ function _clickActionsElipse(obj){
 					y: obj.attr("cy")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "n-resize");
 				y3=this.attr("y");
 				y2=obj.attr("cy");
@@ -712,7 +773,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			inf.drag(function(dx,dy){
-				dragging=true;
 				infSet.attr({
 					y: y3+dy
 				})
@@ -727,6 +787,8 @@ function _clickActionsElipse(obj){
 					y: obj.attr("cy")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "s-resize");
 				y3=this.attr("y");
 				y2=obj.attr("cy");
@@ -737,7 +799,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			infder.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -766,6 +827,8 @@ function _clickActionsElipse(obj){
 					x: obj.attr("cx")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "se-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -779,7 +842,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			supder.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -808,6 +870,8 @@ function _clickActionsElipse(obj){
 					x: obj.attr("cx")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "ne-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -821,7 +885,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			infizq.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -850,6 +913,8 @@ function _clickActionsElipse(obj){
 					y: obj.attr("cy")-5
 				});
 			},function(){
+                drawing=false;
+                dragging=true;
 				$("#canvas").css("cursor", "sw-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
@@ -863,7 +928,6 @@ function _clickActionsElipse(obj){
 			});
 			
 			supizq.drag(function(dx,dy){
-				dragging=true;
 				if(shifted){
 					dy=dx;
 				}
@@ -892,6 +956,8 @@ function _clickActionsElipse(obj){
 					y: obj.attr("cy")-5
 				});
 			},function(){
+                dragging=true;
+                drawing=false;
 				$("#canvas").css("cursor", "nw-resize");
 				x3=this.attr("x");
 				y3=this.attr("y");
